@@ -10,10 +10,12 @@ HEAD = 8
 DROP_RATE = 0.1
 checkpoint_path = sys.argv[3]
 ckpt_index = sys.argv[4]
-if 'en-de' in sys.argv[2]:
+if 'ende' in sys.argv[2]:
   PARAMS = data_params.en_de_params
-elif 'en-fr' in sys.argv[2]:
+elif 'enfr' in sys.argv[2]:
   PARAMS = data_params.en_fr_params
+elif 'deen' in sys.argv[2]:
+  PARAMS = data_params.de_en_params
 
 if 'random' in sys.argv[1]:
   projection_type = 'random'
@@ -45,8 +47,12 @@ ckpt = tf.train.Checkpoint(model=model,
                              optimizer=optimizer)
 
 ckpt_manager = tf.train.CheckpointManager(ckpt, checkpoint_path, max_to_keep=20)
-ckpt.restore(checkpoint_path+'/'+ckpt_index)
+ckpt.restore(checkpoint_path+'/'+ckpt_index).expect_partial()
 print('Checkpoint restored; Model was trained for {} steps.'.format(ckpt.optimizer.iterations.numpy()))
 subWordTokenizer = tokenizer.Subtokenizer(PARAMS["path_to_mt_vocab"])
-test_dataset = test_data_translation.make_dataset(PARAMS["path_to_src"], PARAMS["path_to_tar"], subWordTokenizer, batch_size=25000)
-model.batch_evaluate(test_dataset, vocab_size, subWordTokenizer, alpha=0.6, beam_size=4)
+test_dataset = test_data_translation.make_dataset(subWordTokenizer, 
+                                                  PARAMS["path_to_src"], 
+                                                  PARAMS["path_to_tar"],  
+                                                  batch_size=25000,
+                                                  maxlen=512)
+model.batch_evaluate(test_dataset, vocab_size, subWordTokenizer, 'iwslt-full-2', alpha=0.6, beam_size=4)

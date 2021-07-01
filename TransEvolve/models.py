@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/tanya18048/TransEvolve/')
+sys.path.append('/home/subha0009/Seq2Seq/TransEvolve/')
 import tensorflow as tf
 import utils
 import TElayers
@@ -105,7 +105,7 @@ class EncoderDecoderModel(tf.keras.models.Model):
 
       input_cache={}
       input_cache["encoder_output"] = e_out
-      input_cache["enc_pad"] = create_padding_array(src_inp)
+      input_cache["enc_pad"] = utils.create_padding_array(src_inp)
 
       decoded_ids, _ = beam_search.sequence_beam_search(
               symbols_to_logits_fn=symbols_to_logits_fn,
